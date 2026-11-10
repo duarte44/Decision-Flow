@@ -1,6 +1,7 @@
 package main.java.decisaoflow;
 
 import main.java.decisaoflow.dominio.SolicitacaoCredito;
+import main.java.decisaoflow.sevico.MotorDeDecisao;
 
 import java.math.BigDecimal;
 
@@ -9,29 +10,17 @@ import java.math.BigDecimal;
 public class Main {
     public static void main(String[] args){
 
-        try {
-            SolicitacaoCredito solicitacaoCredito1 = new SolicitacaoCredito(
-                    null, new BigDecimal("222.05"), new BigDecimal("895.6"), 2);
-
-            System.out.println(solicitacaoCredito1);
-        }catch (IllegalArgumentException e){
-            System.out.println(e.getMessage());
-        }
-
+     
         try {
             SolicitacaoCredito solicitacaoCredito = new SolicitacaoCredito(
-                    "12345", new BigDecimal("222.05"), new BigDecimal("895.6"), 2);
-            System.out.println(solicitacaoCredito);
-        }catch (IllegalArgumentException e){
-            System.out.println(e.getMessage());
+                    "12345", new BigDecimal("3.000"), new BigDecimal("6.000"), 12);
+
+            MotorDeDecisao motorDeDecisao = new MotorDeDecisao();
+            motorDeDecisao.analise(solicitacaoCredito);
+            System.out.println(motorDeDecisao.analise(solicitacaoCredito));
 
         }
-
-        try {
-            SolicitacaoCredito solicitacaoCredito = new SolicitacaoCredito(
-                    " ", new BigDecimal("222.05"), new BigDecimal("895.6"), 2);
-            System.out.println(solicitacaoCredito);
-        }catch (IllegalArgumentException e){
+        catch (IllegalArgumentException e){
             System.out.println(e.getMessage());
 
         }
