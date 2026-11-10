@@ -1,4 +1,4 @@
-package main.java.decisaoflow.dominio;
+package br.com.decisionflow.dominio;
 
 public enum StatusDecisao {
 
