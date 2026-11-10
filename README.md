@@ -1,126 +1,50 @@
-# Decision-Flow
+﻿# DecisionFlow
 
-decisionflow/
-├── pom.xml
-├── README.md
-├── .gitignore
-└── src/
-├── main/java/br/com/decisionflow/
-│   ├── Main.java
-│   ├── dominio/
-│   │   ├── SolicitacaoCredito.java
-│   │   ├── ResultadoAnalise.java
-│   │   └── StatusDecisao.java
-│   └── servico/
-│       └── MotorDeDecisao.java
-└── test/java/br/com/decisionflow/
+## 1. Sobre o projeto
 
-DecisionFlow — Regras de negócio
-Objetivo: desenvolver um motor que recebe uma solicitação fictícia de crédito e determina se ela será aprovada, reprovada ou encaminhada para análise manual.
-1. Dados de entrada
-   Cada solicitação contém:
-   Campo	Descrição	Exemplo
-   id	Identificador da solicitação	SOL-001
-   rendaMensal	Renda mensal do solicitante	R$ 3.000
-   valorSolicitado	Valor do crédito solicitado	R$ 6.000
-   prazoMeses	Prazo de pagamento	12 meses
+O DecisionFlow é uma aplicação de console que simula a análise de solicitações de crédito. A partir da renda mensal, do valor solicitado e do prazo de pagamento, aplica critérios padronizados para aprovar, reprovar ou encaminhar o pedido para análise manual, retornando a decisão, uma justificativa e o identificador da solicitação.
+Este projeto tem finalidade de estudo. Os critérios utilizados são fictícios e não representam políticas reais de concessão de crédito.
 
-Todos os campos são obrigatórios. Identificador vazio, valores monetários nulos ou menores ou iguais a zero e prazo menor ou igual a zero tornam a solicitação inválida.
-2. Cálculos necessários
-   Antes de tomar qualquer decisão, o motor deverá calcular três informações.
-   Simulador das regras
+## 2. Tecnologias
 
-Altere os valores para testar diferentes situações antes de implementar a lógica no Java.
-Renda (R$)
+- **Java 21**, com classes, construtores e encapsulamento para representar os dados e as regras.
+- **BigDecimal e RoundingMode.HALF_UP** para cálculos monetários e arredondamento.
+- **Enum** para representar os possíveis status da decisão.
+- **List, ArrayList e for-each** para armazenar e percorrer as solicitações de exemplo.
+- **Condicionais, operadores lógicos e IllegalArgumentException** para aplicar as regras e rejeitar dados inválidos.
 
-Crédito (R$)
+## 3. Regras de negócio
 
-Prazo (meses)
+A parcela mensal é calculada dividindo o valor solicitado pelo prazo em meses, sem juros, com duas casas decimais e arredondamento `HALF_UP`.
 
+| Decisão | Condição |
+| --- | --- |
+| **Reprovação** | Valor solicitado **maior que 6 vezes a renda** OU parcela **maior que 50% da renda**. |
+| **Análise manual** | Sem atender às condições de reprovação, valor solicitado **maior que 4 vezes a renda** OU parcela **maior que 30% da renda**. |
+| **Aprovação** | Valor solicitado **menor ou igual a 4 vezes a renda** E parcela **menor ou igual a 30% da renda**. |
 
-Parcela mensal (sem juros)
-R$ 500,00
+O motor verifica primeiro a reprovação, depois a análise manual e, por fim, a aprovação. Valores iguais aos limites não os ultrapassam. O identificador deve ser preenchido, a renda e o valor solicitado devem ser positivos e o prazo deve ser maior que zero; dados inválidos geram uma exceção na criação da solicitação.
 
+## 4. Estrutura
 
-30% da renda
-R$ 900,00
+As classes ficam em `src/br/com/decisionflow`, organizadas nos pacotes `dominio` e `servico`, além da classe principal.
 
+| Classe | Responsabilidade |
+| --- | --- |
+| `Main` | Cria solicitações de exemplo, chama o motor e exibe os resultados no console. |
+| `dominio.SolicitacaoCredito` | Armazena e valida o identificador, a renda mensal, o valor solicitado e o prazo. |
+| `dominio.ResultadoAnalise` | Armazena e valida o status, a justificativa e o identificador do pedido analisado. |
+| `dominio.StatusDecisao` | Define os status `APROVADA`, `REPROVADA` e `ANALISE_MANUAL`. |
+| `servico.MotorDeDecisao` | Calcula a parcela e os limites de renda, aplica as regras e retorna o resultado da análise. |
 
-50% da renda
-R$ 1.500,00
+## 5. Como executar
 
+1. Abra a pasta do projeto no IntelliJ IDEA usando **File > Open**.
+2. Em **File > Project Structure > Project**, selecione o **JDK 21** como SDK do projeto. Caso necessário, adicione ou baixe esse JDK.
+3. Confira se a pasta `src` está marcada como **Sources Root**. Se necessário, clique nela com o botão direito e escolha **Mark Directory as > Sources Root**.
+4. Abra `src/br/com/decisionflow/Main.java` e clique no ícone de execução ao lado do método `main`, selecionando **Run 'Main.main()'**.
+5. Veja os resultados na janela **Run**. Para experimentar outros cenários, altere as solicitações criadas em `Main` e execute novamente.
 
-4× e 6× a renda
+## 6. Testes manuais
 
-R$ 12.000,00 / R$ 18.000,00
-
-
-
-
-Decisão calculada
-APROVADA
-
-As duas condições de aprovação foram atendidas.
-
-3. Regras de decisão
-
-RN01 — Reprovação
-
-A solicitação será REPROVADA quando pelo menos uma das condições ocorrer:
-- O valor solicitado for maior que 6 vezes a renda mensal.
-- A parcela mensal for maior que 50% da renda mensal.
-  Basta uma condição ser verdadeira. Portanto, utilize a lógica OU (||).
-
-Exemplo: renda de R$ 3.000 e crédito de R$ 21.000. Como ultrapassa R$ 18.000 (6× a renda), a solicitação é reprovada.
-
-
-
-
-RN02 — Análise manual
-
-A solicitação será encaminhada para ANALISE_MANUAL quando não for reprovada e pelo menos uma destas condições ocorrer:
-- O valor solicitado for maior que 4 vezes a renda mensal.
-- A parcela mensal for maior que 30% da renda mensal.
-  Isso abrange valores até 6 vezes a renda e parcelas até 50%, porque os casos superiores já foram reprovados na RN01.
-
-Exemplo: renda de R$ 3.000, crédito de R$ 15.000 e prazo de 24 meses. A parcela é R$ 625, mas o valor excede 4 vezes a renda (R$ 12.000). Resultado: análise manual.
-
-
-
-
-RN03 — Aprovação
-
-A solicitação será APROVADA quando ambas as condições forem verdadeiras:
-- O valor solicitado for menor ou igual a 4 vezes a renda mensal.
-- A parcela mensal for menor ou igual a 30% da renda mensal.
-  As duas condições devem ser verdadeiras. Portanto, utilize E (&&).
-
-Exemplo: renda de R$ 3.000, crédito de R$ 6.000 e prazo de 12 meses. Parcela de R$ 500, abaixo de R$ 900, e crédito abaixo de R$ 12.000. Resultado: aprovada.
-
-
-
-4. Ordem de execução
-   A ordem é importante para evitar decisões conflitantes.
-   Receber solicitação válida
-
-
-Verificar RN01 — Reprovação
-
-
-Verificar RN02 — Análise manual
-
-
-Caso contrário — Aprovação
-
-
-Como você já começou implementando a condição de aprovação, pode mantê-la, mas deverá garantir que todos os caminhos retornem exatamente uma decisão.
-5. Cenários para validar seu código
-   Renda	Crédito	Prazo	Resultado esperado
-   R$ 3.000	R$ 6.000	12	Aprovada
-   R$ 3.000	R$ 15.000	24	Análise manual
-   R$ 3.000	R$ 21.000	24	Reprovada
-   R$ 3.000	R$ 6.000	3	Reprovada
-   R$ 3.000	R$ 12.000	12	Análise manual
-   R$ 3.000	R$ 12.000	14	Aprovada
-
-Esses cenários incluem situações em que apenas uma condição determina o resultado, além de valores próximos aos limites.
+Foram validados os sete cenários definidos em `Main`, comparando os resultados no console com as regras de negócio. Os testes abrangeram aprovação, reprovação, análise manual e valores nos limites de 4 e 6 vezes a renda mensal e de parcela igual a 50% da renda. Todos apresentaram os resultados esperados: duas aprovações, uma reprovação e quatro encaminhamentos para análise manual.
